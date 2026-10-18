@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db, hasDatabaseUrl } from "@/db";
 import { leads } from "@/db/schema";
 
 const allowedTypes = new Set(["consultation", "event", "destination_finder"]);
 const clean = (value: unknown, max = 500) => typeof value === "string" ? value.trim().slice(0, max) : "";
 
 export async function POST(request: Request) {
+  if (!hasDatabaseUrl) {
+    return NextResponse.json(
+      { error: "Enquiry submission is temporarily unavailable. Please contact us by phone or WhatsApp." },
+      { status: 503 },
+    );
+  }
+
   try {
     const body = await request.json();
     const fullName = clean(body.fullName, 160);
@@ -16,7 +23,7 @@ export async function POST(request: Request) {
     if (fullName.length < 2 || phone.length < 7 || !consent) {
       return NextResponse.json({ error: "Please provide your name, a valid phone number and contact consent." }, { status: 400 });
     }
-    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+    if (email && !/^\\S+@\\S+\\.\\S+$/.test(email)) {
       return NextResponse.json({ error: "Please check the email address and try again." }, { status: 400 });
     }
 
