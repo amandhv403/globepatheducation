@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { hasDatabaseUrl } from "@/db";
 import { ADMIN_COOKIE, adminCookieOptions, createAdminSession, isAdminConfigured, validateAdminCredentials } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
+  if (!hasDatabaseUrl) {
+    return NextResponse.json({ error: "Admin login needs the production database. Please configure DATABASE_URL in Vercel." }, { status: 503 });
+  }
   try {
     if (!(await isAdminConfigured())) {
       return NextResponse.json({ error: "Admin setup has not been completed." }, { status: 503 });
