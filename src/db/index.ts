@@ -1,12 +1,20 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-// Vercel can build the site without a database, but persistent admin and form
-// features require DATABASE_URL to point to a real PostgreSQL database.
-export const hasDatabaseUrl = Boolean(process.env.DATABASE_URL?.trim());
+// Vercel's Prisma Postgres integration exposes the same direct connection
+// under DATABASE_URL and POSTGRES_URL (and, on older projects, PRISMA_DATABASE_URL).
+const connectionUrl = [
+  process.env.DATABASE_URL,
+  process.env.POSTGRES_URL,
+  process.env.PRISMA_DATABASE_URL,
+].find((value) => typeof value === "string" && value.trim().length > 0)?.trim();
+
+export const hasDatabaseUrl = Boolean(connectionUrl);
+
+// Keep a local fallback so the public site can still build without a database.
+// Admin and enquiry routes check hasDatabaseUrl before attempting database access.
 const databaseUrl =
-  process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@127.0.0.1:5432/app_db";
+  connectionUrl ?? "postgresql://postgres:postgres@127.0.0.1:5432/app_db";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
