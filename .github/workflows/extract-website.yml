@@ -1,0 +1,85 @@
+name: Extract website source from ZIP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract ZIP and prepare project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          archives=( *.zip )
+          if [ "${#archives[@]}" -eq 0 ]; then
+            echo "No ZIP archive at repository root; nothing to extract."
+            exit 0
+          fi
+          archive="${archives[0]}"
+          work="$(mktemp -d)"
+          unzip -q "$archive" -d "$work/unpacked"
+          project_dir=""
+          while IFS= read -r candidate; do
+            project_dir="$(dirname "$candidate")"
+            break
+          done < <(find "$work/unpacked" -type f \( -name package.json -o -name index.html \) -not -path '*/node_modules/*' | sort)
+          if [ -z "$project_dir" ]; then
+            echo "Could not identify website root (no package.json or index.html found)."
+            echo "Extracted file listing:"
+            find "$work/unpacked" -maxdepth 4 -type f | head -200
+            exit 1
+          fi
+          echo "Detected project root: $project_dir"
+          echo "Top-level project files:"
+          find "$project_dir" -maxdepth 2 -type f | sed "s#^$project_dir/##" | head -200
+          rsync -a --exclude='.git' --exclude='.github' "$project_dir"/ ./
+          rm -f "$archive"
+          if [ -f package.json ]; then
+            echo "PACKAGE_JSON_FOUND=true" >> "$GITHUB_ENV"
+            node -e "const p=require('./package.json'); console.log('Project:',p.name||'(unnamed)'); console.log('Scripts:',JSON.stringify(p.scripts||{}));"
+          else
+            echo "PACKAGE_JSON_FOUND=false" >> "$GITHUB_ENV"
+          fi
+          if [ -f README.md ]; then
+            echo "README_FOUND=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check source and attempt production build
+        shell: bash
+        continue-on-error: true
+        run: |
+          if [ -f package.json ]; then
+            npm install
+            npm run build --if-present
+          elif [ -f index.html ]; then
+            echo "Static HTML project detected; no npm build required."
+          else
+            echo "No recognizable website entry point at repository root."
+            exit 1
+          fi
+
+      - name: Commit extracted source to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            echo "No source changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Extract website source from project ZIP"
+          git push origin HEAD:main
