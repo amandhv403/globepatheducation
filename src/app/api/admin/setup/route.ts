@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase().slice(0, 200) : "";
     const password = typeof body.password === "string" ? body.password : "";
     if (displayName.length < 2) return NextResponse.json({ error: "Enter the administrator’s full name." }, { status: 400 });
-    if (!/^\\S+@\\S+\\.\\S+$/.test(email)) return NextResponse.json({ error: "Enter a valid administrator email address." }, { status: 400 });
+    if (!/^\S+@\S+\.\S+$/.test(email)) return NextResponse.json({ error: "Enter a valid administrator email address." }, { status: 400 });
     if (password.length < 10 || password.length > 200) return NextResponse.json({ error: "Use a password between 10 and 200 characters." }, { status: 400 });
 
     const admin = await createFirstAdmin({ displayName, email, password });
