@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AdminSetupForm } from "@/components/admin/admin-setup-form";
+import { hasDatabaseUrl } from "@/db";
 import { Brand } from "@/components/ui";
 import { getAdminSession, isAdminConfigured } from "@/lib/admin-auth";
 
 export const metadata: Metadata = { title: "Create Admin Account", robots: { index: false, follow: false } };
 
 export default async function AdminSetupPage() {
+  if (!hasDatabaseUrl) return <main className="admin-login-page"><section className="admin-login-panel"><Brand/><div className="admin-login-copy"><p>Setup required</p><h1>Admin setup is not ready.</h1><span>Creating the first administrator requires the production database connection.</span></div><p role="alert">Please configure DATABASE_URL in the Vercel project settings, then redeploy.</p><a href="/">← Return to public website</a></section></main>;
   const session = await getAdminSession();
   if (session) redirect("/admin");
   if (await isAdminConfigured()) redirect("/admin/login");
