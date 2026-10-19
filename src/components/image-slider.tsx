@@ -96,7 +96,7 @@ export function ImageSlider({ slides, interval = 6000, priority = false, sizes =
         const isActive = index === active;
         return (
           <div key={`${slide.src}-${index}`} className={`slide ${isActive ? "is-active" : ""}`} role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${count}`} aria-hidden={!isActive}>
-            {loaded.has(index) && <Image src={slide.src} alt={slide.alt} fill sizes={sizes} priority={priority && index === 0} className="slide-image" unoptimized={slide.src.startsWith("/api/") || slide.src.startsWith("http")} />}
+            {loaded.has(index) && (slide.href ? <a href={slide.href} aria-label={`Open ${slide.alt}`} className="slide-link"><Image src={slide.src} alt={slide.alt} fill sizes={sizes} priority={priority && index === 0} className="slide-image" unoptimized={slide.src.startsWith("/api/") || slide.src.startsWith("http")} /></a> : <Image src={slide.src} alt={slide.alt} fill sizes={sizes} priority={priority && index === 0} className="slide-image" unoptimized={slide.src.startsWith("/api/") || slide.src.startsWith("http")} />)}
             {showCaption && slide.caption && <p className="slide-caption">{slide.caption}</p>}
           </div>
         );
