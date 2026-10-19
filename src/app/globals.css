@@ -675,3 +675,71 @@ h3 { color: var(--navy-950); }
   .university-filters.no-country { grid-template-columns: 1fr; }
   .university-filters.no-country .search-field { grid-column: auto; }
 }
+
+
+/* 2026 visual refresh: immersive full-width homepage banner and accessible motion */
+.hero {
+  min-height: min(820px, calc(100svh - 116px));
+  min-height: min(820px, calc(100vh - 116px));
+  align-items: stretch;
+  background: var(--navy-950);
+  isolation: isolate;
+}
+.hero-grid-lines { z-index: 2; opacity: .18; pointer-events: none; }
+.hero::before { z-index: 2; pointer-events: none; border-color: rgba(255,255,255,.18); }
+.hero-inner {
+  z-index: 3;
+  display: flex;
+  width: min(1180px, calc(100% - 48px));
+  min-height: inherit;
+  align-items: center;
+  padding: clamp(72px, 9vw, 120px) 0 100px;
+}
+.hero-copy { max-width: 760px; }
+.hero-copy .eyebrow { color: #c4e6df; }
+.hero-copy .eyebrow span { background: #f0c96a; }
+.hero h1 { max-width: 780px; color: #fff; text-wrap: balance; text-shadow: 0 2px 24px rgba(0,0,0,.16); }
+.hero h1 em { color: #f4cf76; }
+.hero-intro { max-width: 680px; color: rgba(255,255,255,.88); }
+.hero-trust { color: rgba(255,255,255,.9); }
+.hero-trust svg { color: #c4e6df; }
+.hero-actions .button-primary { background: #e9b94f; border-color: #e9b94f; color: #102f46; }
+.hero-actions .button-primary:hover { background: #ffda83; border-color: #ffda83; }
+.hero-actions .button-secondary { color: white; border-color: rgba(255,255,255,.72); background: rgba(255,255,255,.08); }
+.hero-actions .button-secondary:hover { background: white; color: var(--navy-950); }
+.hero-visual { position: absolute; z-index: 0; inset: 0; min-height: 0; }
+.hero-image-wrap { position: absolute; inset: 0; border-radius: 0; box-shadow: none; }
+.hero-image-wrap::after {
+  background: linear-gradient(90deg, rgba(5,24,39,.88) 0%, rgba(5,24,39,.70) 42%, rgba(5,24,39,.18) 100%),
+    linear-gradient(0deg, rgba(5,24,39,.52), transparent 45%);
+}
+.hero-image-wrap .slider { position: absolute; inset: 0; }
+.hero-image-wrap .slide-image { object-position: center 42%; }
+.hero-note, .hero-chat { z-index: 4; }
+.hero-note { right: 0; left: auto; bottom: 28px; width: min(310px, 34vw); border: 1px solid rgba(255,255,255,.15); border-radius: 14px; background: rgba(8,39,59,.82); backdrop-filter: blur(14px); }
+.hero-chat { top: auto; right: 24px; bottom: 148px; border-radius: 999px; }
+.scroll-cue { z-index: 4; color: white; border-color: rgba(255,255,255,.55); background: rgba(8,39,59,.25); transition: transform .25s, background .25s; }
+.scroll-cue:hover { transform: translateY(3px); background: rgba(255,255,255,.14); }
+.slide-link { position: absolute; inset: 0; display: block; }
+.slide-link:focus-visible { outline: 3px solid #f4cf76; outline-offset: -5px; }
+@keyframes gp-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.hero-copy > * { animation: gp-fade-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.hero-copy > *:nth-child(2) { animation-delay: .08s; }
+.hero-copy > *:nth-child(3) { animation-delay: .16s; }
+.hero-copy > *:nth-child(4) { animation-delay: .24s; }
+.hero-copy > *:nth-child(5) { animation-delay: .32s; }
+.service-card, .destination-card, .university-card, .resource-card { transition-duration: .32s; }
+@media (max-width: 760px) {
+  .hero { min-height: 760px; min-height: min(820px, calc(100svh - 80px)); }
+  .hero-inner { width: min(100% - 36px, 1180px); padding-top: 64px; padding-bottom: 116px; }
+  .hero h1 { font-size: clamp(2.65rem, 11vw, 4.4rem); line-height: .98; }
+  .hero-intro { font-size: 16px; }
+  .hero-trust { gap: 8px 14px; font-size: 10px; }
+  .hero-note { display: none; }
+  .hero-chat { right: 18px; bottom: 26px; top: auto; }
+  .hero-image-wrap::after { background: linear-gradient(90deg, rgba(5,24,39,.88), rgba(5,24,39,.52)), linear-gradient(0deg, rgba(5,24,39,.45), transparent); }
+  .scroll-cue { bottom: 22px; left: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy > *, .service-card, .destination-card, .university-card, .resource-card { animation: none !important; transition: none !important; }
+}
