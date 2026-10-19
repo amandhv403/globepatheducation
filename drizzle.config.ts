@@ -16,6 +16,18 @@ if (!connectionUrl) {
 export default defineConfig({
   schema: "./src/db/schema.ts",
   dialect: "postgresql",
+  // This PostgreSQL store is shared with Globepath Higher Study.
+  // Keep schema pushes limited to tables owned by this project.
+  schemaFilter: ["public"],
+  tablesFilter: [
+    "education_leads",
+    "profile_assessments",
+    "admin_users",
+    "admin_sessions",
+    "content_entries",
+    "site_settings",
+    "media_assets",
+  ],
   dbCredentials: {
     url: connectionUrl,
   },
