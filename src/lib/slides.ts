@@ -1,4 +1,4 @@
-export type Slide = { src: string; alt: string; caption?: string };
+export type Slide = { src: string; alt: string; caption?: string; href?: string };
 
 export type SliderKey = "heroSlides" | "assessmentSlides" | "parentSlides" | "visaSlides" | "aboutSlides";
 
@@ -33,16 +33,16 @@ export const defaultSlides: Record<SliderKey, Slide[]> = {
 };
 
 export function slidesToText(slides: Slide[]) {
-  return slides.map((slide) => `${slide.src} | ${slide.alt}`).join("\n");
+  return slides.map((slide) => `${slide.src} | ${slide.alt}${slide.href ? ` | ${slide.href}` : ""}`).join("\n");
 }
 
-/** One image per line: `image-url | description`. Invalid lines are ignored. */
+/** One image per line: `image-url | description | optional destination URL`. Invalid lines are ignored. */
 export function parseSlides(value: string | undefined | null, fallback: Slide[], defaultAlt: string): Slide[] {
   if (!value?.trim()) return fallback;
   const slides = value.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => {
     const [src, ...rest] = line.split("|").map((part) => part.trim());
     return { src, alt: rest.join(" | ") || defaultAlt };
-  }).filter((slide) => slide.src.startsWith("/") || slide.src.startsWith("https://"));
+  }).filter((slide) => (slide.src.startsWith("/") || slide.src.startsWith("https://")) && (!slide.href || slide.href.startsWith("/") || slide.href.startsWith("https://")));
   return slides.length ? slides : fallback;
 }
 
