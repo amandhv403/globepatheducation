@@ -8,16 +8,60 @@ export function ConsultationForm({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setStatus("loading"); setError("");
+    event.preventDefault();
     const form = event.currentTarget;
-    if (!form.checkValidity()) { form.reportValidity(); setStatus("idle"); return; }
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    setStatus("loading");
+    setError("");
     const data = Object.fromEntries(new FormData(form));
-    const response = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, consent: data.consent === "on", type: "consultation" }) });
-    if (response.ok) { setStatus("success"); form.reset(); }
-    else { const body = await response.json().catch(() => ({})); setError(body.error || "We could not submit the form. Please try again or call us."); setStatus("error"); }
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...data,
+          consent: data.consent === "on",
+          type: "consultation",
+        }),
+      });
+      const body = await response.json().catch(() => ({}));
+
+      if (!response.ok || body.ok !== true) {
+        setError(
+          body.error ||
+            "Your enquiry could not be saved. Please try again or contact us by phone or WhatsApp.",
+        );
+        setStatus("error");
+        return;
+      }
+
+      setStatus("success");
+      form.reset();
+    } catch {
+      setError(
+        "We could not connect to the enquiry service. Please check your internet connection and try again, or contact us by phone or WhatsApp.",
+      );
+      setStatus("error");
+    }
   }
 
-  if (status === "success") return <div className="consultation-success" role="status"><span><Check size={25} /></span><h3>Thank you. Your next step is clearer already.</h3><p>We have received your request. An advisor can follow up using the contact details you provided.</p><button className="button button-secondary" onClick={() => setStatus("idle")}>Send another enquiry</button></div>;
+  if (status === "success") {
+    return (
+      <div className="consultation-success" role="status">
+        <span><Check size={25} /></span>
+        <h3>Thank you. Your enquiry has been received.</h3>
+        <p>An advisor can follow up using the contact details you provided.</p>
+        <button className="button button-secondary" onClick={() => setStatus("idle")}>
+          Send another enquiry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form className={`consultation-form ${compact ? "compact" : ""}`} onSubmit={handleSubmit} noValidate>
@@ -31,7 +75,10 @@ export function ConsultationForm({ compact = false }: { compact?: boolean }) {
       </div>
       <label className="consent"><input name="consent" type="checkbox" required /> <span>I agree that Globepath may contact me about this enquiry. *</span></label>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary submit-button" disabled={status === "loading"}>{status === "loading" && <LoaderCircle className="spin" size={18} />} Book a consultation</button>
+      <button className="button button-primary submit-button" disabled={status === "loading"}>
+        {status === "loading" && <LoaderCircle className="spin" size={18} />}
+        {status === "loading" ? "Submitting..." : "Book a consultation"}
+      </button>
       <p className="form-privacy">Your information is used only to respond to your study-planning enquiry.</p>
     </form>
   );
