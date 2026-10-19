@@ -743,3 +743,77 @@ h3 { color: var(--navy-950); }
 @media (prefers-reduced-motion: reduce) {
   .hero-copy > *, .service-card, .destination-card, .university-card, .resource-card { animation: none !important; transition: none !important; }
 }
+
+
+/* Homepage hero: full-width split layout (copy left, large image right) */
+@media (min-width: 761px) {
+  .hero {
+    min-height: max(680px, calc(100svh - 116px));
+    background: var(--ivory);
+    align-items: stretch;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+    gap: clamp(28px, 4.2vw, 72px);
+    width: 100%;
+    max-width: none;
+    min-height: inherit;
+    align-items: center;
+    padding: clamp(52px, 5.5vw, 88px) clamp(28px, 5vw, 84px) clamp(76px, 6vw, 100px);
+  }
+  .hero-copy {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 720px;
+  }
+  .hero-copy .eyebrow { color: var(--teal-700); }
+  .hero h1 { color: var(--navy-950); }
+  .hero h1 em { color: var(--teal-700); }
+  .hero-intro { color: #55656e; }
+  .hero-trust { color: #52636b; }
+  .hero-trust svg { color: var(--teal-700); }
+  .hero-actions .button-primary { background: var(--navy-900); border-color: var(--navy-900); color: white; }
+  .hero-actions .button-primary:hover { background: var(--teal-700); border-color: var(--teal-700); }
+  .hero-actions .button-secondary { color: var(--navy-900); border-color: #aeb8bb; background: transparent; }
+  .hero-actions .button-secondary:hover { background: var(--navy-900); color: white; }
+  .hero-visual {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+    min-height: clamp(500px, 57vw, 740px);
+    z-index: 1;
+  }
+  .hero-image-wrap {
+    position: absolute;
+    inset: 0;
+    border-radius: 220px 220px 12px 12px;
+    box-shadow: var(--shadow);
+  }
+  .hero-image-wrap::after {
+    background: linear-gradient(180deg, transparent 55%, rgba(9,36,56,.18));
+  }
+  .hero-note { left: -28px; right: auto; bottom: 26px; width: min(310px, 75%); }
+  .hero-chat { top: 18%; right: -14px; bottom: auto; }
+  .hero-grid-lines { z-index: 0; opacity: .3; }
+  .hero::before { z-index: 0; border-color: rgba(38,110,105,.17); }
+}
+@media (max-width: 760px) {
+  .hero { background: var(--navy-950); }
+  .hero-inner {
+    display: flex;
+    width: min(100% - 36px, 1180px);
+    max-width: 1180px;
+    padding-top: 64px;
+    padding-bottom: 116px;
+  }
+  .hero-copy .eyebrow { color: #c4e6df; }
+  .hero h1 { color: #fff; }
+  .hero h1 em { color: #f4cf76; }
+  .hero-intro { color: rgba(255,255,255,.88); }
+  .hero-trust { color: rgba(255,255,255,.9); }
+  .hero-trust svg { color: #c4e6df; }
+  .hero-actions .button-primary { background: #e9b94f; border-color: #e9b94f; color: #102f46; }
+  .hero-actions .button-secondary { color: white; border-color: rgba(255,255,255,.72); background: rgba(255,255,255,.08); }
+}
