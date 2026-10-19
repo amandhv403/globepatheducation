@@ -40,8 +40,8 @@ export function slidesToText(slides: Slide[]) {
 export function parseSlides(value: string | undefined | null, fallback: Slide[], defaultAlt: string): Slide[] {
   if (!value?.trim()) return fallback;
   const slides = value.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => {
-    const [src, ...rest] = line.split("|").map((part) => part.trim());
-    return { src, alt: rest.join(" | ") || defaultAlt };
+    const [src, alt, href] = line.split("|").map((part) => part.trim());
+    return { src, alt: alt || defaultAlt, ...(href ? { href } : {}) };
   }).filter((slide) => (slide.src.startsWith("/") || slide.src.startsWith("https://")) && (!slide.href || slide.href.startsWith("/") || slide.href.startsWith("https://")));
   return slides.length ? slides : fallback;
 }
