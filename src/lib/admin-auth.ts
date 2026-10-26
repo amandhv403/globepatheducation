@@ -77,16 +77,22 @@ export async function createAdminSession(admin: { id: number; email: string; dis
 }
 
 export async function getAdminSession(): Promise<AdminSession | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(ADMIN_COOKIE)?.value;
-  if (!token) return null;
-  const [record] = await db.select({
-    userId: adminUsers.id,
-    email: adminUsers.email,
-    displayName: adminUsers.displayName,
-    expiresAt: adminSessions.expiresAt,
-  }).from(adminSessions).innerJoin(adminUsers, eq(adminSessions.userId, adminUsers.id)).where(and(eq(adminSessions.tokenHash, tokenHash(token)), gte(adminSessions.expiresAt, new Date()), eq(adminUsers.active, true))).limit(1);
-  return record || null;
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(ADMIN_COOKIE)?.value;
+    if (!token) return null;
+    const [record] = await db.select({
+      userId: adminUsers.id,
+      email: adminUsers.email,
+      displayName: adminUsers.displayName,
+      expiresAt: adminSessions.expiresAt,
+    }).from(adminSessions).innerJoin(adminUsers, eq(adminSessions.userId, adminUsers.id)).where(and(eq(adminSessions.tokenHash, tokenHash(token)), gte(adminSessions.expiresAt, new Date()), eq(adminUsers.active, true))).limit(1);
+    return record || null;
+  } catch (error) {
+    // Treat a failed session lookup as signed out instead of crashing the admin page.
+    console.error("Globepath Education admin session lookup failed", error);
+    return null;
+  }
 }
 
 export async function revokeCurrentAdminSession() {
