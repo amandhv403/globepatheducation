@@ -244,7 +244,7 @@ export async function getEntries(type: ResourceKey, onlyPublished = true): Promi
       ...fallback,
       ...saved,
       data: { ...fallback.data, ...(saved.data || {}) },
-      published: saved.published ?? fallback.published,
+      published: type === "university" ? fallback.published : saved.published ?? fallback.published,
     } : fallback;
   });
   merged.push(...bySlug.values());
