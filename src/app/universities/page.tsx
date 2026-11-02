@@ -8,5 +8,5 @@ export async function generateMetadata(): Promise<Metadata> { return pageMetadat
 
 export default async function UniversitiesPage() {
   const universities = await getUniversities("Universities page");
-  return <main><PageHero {...(await getPageHero("universities"))}><ButtonLink href="/contact" variant="light">Ask a counsellor</ButtonLink></PageHero><section className="internal-section muted"><div className="container"><SectionHeading eyebrow="Example directory" title="Compare with care." body="Use the filters to explore institution profiles. Every final decision should be checked against current official university information." /><UniversityExplorer universities={universities} /></div></section></main>;
+  return <main><PageHero {...(await getPageHero("universities"))}><ButtonLink href="/contact" variant="light">Ask a counsellor</ButtonLink></PageHero><section className="internal-section muted"><div className="container"><SectionHeading eyebrow="University directory" title="Explore universities across 22 study destinations." body="Compare institutions by country, degree level and subject. Review each university’s official website for current programmes, entry requirements, tuition, scholarships and application deadlines." /><UniversityExplorer universities={universities} /></div></section></main>;
 }
