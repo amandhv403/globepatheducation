@@ -223,13 +223,33 @@ export function ensureSeeded() {
 }
 
 export async function getEntries(type: ResourceKey, onlyPublished = true): Promise<CmsEntry[]> {
+  const defaults = buildSeedEntries()
+    .filter((row) => row.type === type)
+    .map((row, index) => ({ ...row, id: -(index + 1), updatedAt: new Date(0) } as CmsEntry));
+  let rows: CmsEntry[] = [];
   try {
-    const rows = await db.select().from(contentEntries).where(eq(contentEntries.type, type)).orderBy(asc(contentEntries.sortOrder), asc(contentEntries.id));
-    if (rows.length) return onlyPublished ? rows.filter((row) => row.published) : rows;
+    rows = await db.select().from(contentEntries).where(eq(contentEntries.type, type)).orderBy(asc(contentEntries.sortOrder), asc(contentEntries.id));
   } catch (error) {
     console.error(`Content read failed for ${type}, using bundled defaults`, error);
   }
-  return buildSeedEntries().filter((row) => row.type === type).map((row, index) => ({ ...row, id: -(index + 1), updatedAt: new Date(0) }));
+
+  // The database may contain only a partial seed (for example, one country
+  // or a handful of universities). Always retain bundled records and overlay
+  // matching CMS edits; append genuinely custom CMS entries afterwards.
+  const bySlug = new Map(rows.map((row) => [row.slug, row]));
+  const merged = defaults.map((fallback) => {
+    const saved = bySlug.get(fallback.slug);
+    bySlug.delete(fallback.slug);
+    return saved ? {
+      ...fallback,
+      ...saved,
+      data: { ...fallback.data, ...(saved.data || {}) },
+      published: saved.published ?? fallback.published,
+    } : fallback;
+  });
+  merged.push(...bySlug.values());
+  const ordered = merged.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  return onlyPublished ? ordered.filter((row) => row.published) : ordered;
 }
 
 export async function getEntryById(type: ResourceKey, id: number) {
