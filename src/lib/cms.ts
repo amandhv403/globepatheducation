@@ -295,12 +295,16 @@ export async function getDestinationNames() {
 }
 
 export async function getUniversities(placement?: string, country?: string): Promise<University[]> {
-  return (await getEntries("university")).filter((row) => placed(row, placement) && (!country || text(row.data, "country") === country)).map((row) => ({
-    name: row.title, location: text(row.data, "location", "—"), country: text(row.data, "country", "—"), levels: list(row.data, "levels"), fields: list(row.data, "fields"),
-    tuition: text(row.data, "tuition", "Confirm current fees with the institution."), scholarship: text(row.data, "scholarship", "Availability varies by award."),
-    intake: text(row.data, "intake", "Verify with the university."), overview: row.summary || "", requirements: text(row.data, "requirements", "Requirements vary by program."),
-    officialUrl: text(row.data, "officialUrl", ""), imageUrl: row.imageUrl || undefined,
-  }));
+  // Bundled profiles form the core directory; do not hide them due to stale CMS placement flags.
+  const bundledSlugs = new Set(universities.map((item) => slugify(item.name)));
+  return (await getEntries("university"))
+    .filter((row) => (bundledSlugs.has(row.slug) || placed(row, placement)) && (!country || text(row.data, "country") === country))
+    .map((row) => ({
+      name: row.title, location: text(row.data, "location", "—"), country: text(row.data, "country", "—"), levels: list(row.data, "levels"), fields: list(row.data, "fields"),
+      tuition: text(row.data, "tuition", "Confirm current fees with the institution."), scholarship: text(row.data, "scholarship", "Availability varies by award."),
+      intake: text(row.data, "intake", "Verify with the university."), overview: row.summary || "", requirements: text(row.data, "requirements", "Requirements vary by program."),
+      officialUrl: text(row.data, "officialUrl", ""), imageUrl: row.imageUrl || undefined,
+    }));
 }
 
 export async function getServices(placement?: string): Promise<ServiceItem[]> {
