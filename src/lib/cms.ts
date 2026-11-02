@@ -302,7 +302,7 @@ export async function getUniversities(placement?: string, country?: string): Pro
     .map((row) => ({
       name: row.title, location: text(row.data, "location", "—"), country: text(row.data, "country", "—"), levels: list(row.data, "levels"), fields: list(row.data, "fields"),
       tuition: text(row.data, "tuition", "Confirm current fees with the institution."), scholarship: text(row.data, "scholarship", "Availability varies by award."),
-      intake: text(row.data, "intake", "Verify with the university."), overview: row.summary || "", requirements: text(row.data, "requirements", "Requirements vary by program."),
+      intake: text(row.data, "intake", "Verify with the university."), overview: row.summary?.startsWith("An example") ? `${row.title} is included in the ${text(row.data, "country")} university directory. Review its official website for current programmes and application details.` : row.summary || "", requirements: text(row.data, "requirements", "Requirements vary by program."),
       officialUrl: text(row.data, "officialUrl", ""), imageUrl: row.imageUrl || undefined,
     }));
 }
